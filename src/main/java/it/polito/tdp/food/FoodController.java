@@ -6,6 +6,8 @@ package it.polito.tdp.food;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import it.polito.tdp.food.model.Correlate;
 import it.polito.tdp.food.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -40,7 +42,7 @@ public class FoodController {
     private Button btnCammino; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxPorzioni"
-    private ComboBox<?> boxPorzioni; // Value injected by FXMLLoader
+    private ComboBox<String> boxPorzioni; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
@@ -54,7 +56,15 @@ public class FoodController {
     @FXML
     void doCorrelate(ActionEvent event) {
     	txtResult.clear();
-    	txtResult.appendText("Cerco porzioni correlate...");
+    	txtResult.appendText("Cerco porzioni correlate... \n");
+    	String p1 = boxPorzioni.getValue();
+    	if(p1 == null) {
+    		txtResult.appendText("Devi scegliere una porzione");
+    		return;
+    	}
+    	for(Correlate c: this.model.getCorrelate(p1)) {
+    		txtResult.appendText(c.toString()+"\n");
+    	}
     	
     }
 
@@ -62,6 +72,21 @@ public class FoodController {
     void doCreaGrafo(ActionEvent event) {
     	txtResult.clear();
     	txtResult.appendText("Creazione grafo...");
+    	
+    	String cal = txtCalorie.getText();
+    	double k = 0.0;
+    	try {
+    		k = Double.parseDouble(cal);
+    	} catch(NumberFormatException nfe) {
+    		txtResult.appendText("Devi inserire un numero!!");
+    		return;
+    	}
+    	this.model.creaGrafo(k);
+    	txtResult.appendText("GRAFO CREATO! \n");
+    	txtResult.appendText("# VERTICI: " + this.model.nVertici()+"\n");
+    	txtResult.appendText("# ARCHI: " + this.model.nArchi());
+    	boxPorzioni.getItems().addAll(this.model.getVertici());
+    	
     	
     }
 

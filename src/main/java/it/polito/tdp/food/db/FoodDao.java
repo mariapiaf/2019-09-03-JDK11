@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import it.polito.tdp.food.model.Arco;
 import it.polito.tdp.food.model.Condiment;
 import it.polito.tdp.food.model.Food;
 import it.polito.tdp.food.model.Portion;
@@ -109,6 +111,61 @@ public class FoodDao {
 
 	}
 	
+	public List<String> getVertici(double k) {
+		String sql = "SELECT DISTINCT p.portion_display_name "
+				+ "FROM `portion` p "
+				+ "WHERE p.calories < ?";
+		
+		try {
+			Connection conn = DBConnect.getConnection() ;
+
+			PreparedStatement st = conn.prepareStatement(sql) ;
+			st.setDouble(1, k);
+			
+			List<String> result = new ArrayList<>() ;
+			
+			ResultSet res = st.executeQuery() ;
+			
+			while(res.next()) {
+				result.add(res.getString("p.portion_display_name"));
+			}
+			
+			conn.close();
+			return result ;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null ;
+		}
+		
+	}
 	
+	public List<Arco> getArchi() {
+		String sql = "SELECT p1.portion_display_name AS id1, p2.portion_display_name AS id2, COUNT(DISTINCT p1.food_code) AS peso "
+				+ "FROM `portion` p1, `portion` p2 "
+				+ "WHERE p1.food_code = p2.food_code AND p1.portion_display_name <> p2.portion_display_name "
+				+ "GROUP BY p1.portion_display_name, p2.portion_display_name";
+		
+		try {
+			Connection conn = DBConnect.getConnection() ;
+
+			PreparedStatement st = conn.prepareStatement(sql) ;
+			
+			List<Arco> result = new ArrayList<>() ;
+			
+			ResultSet res = st.executeQuery() ;
+			
+			while(res.next()) {
+				result.add(new Arco(res.getString("id1"), res.getString("id2"), res.getInt("peso")));
+			}
+			
+			conn.close();
+			return result ;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null ;
+		}
+	}
 
 }
